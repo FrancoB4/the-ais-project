@@ -44,7 +44,7 @@ jobs:
                 max_tokens: 1024,
                 messages: [{
                   role: "user",
-                  content: ("You are the AI maintainer of a repository called The AI'\''s Project. Your job is to review pull requests made by AI agents according to the rules defined in the README.\n\nHere is the README of the repository, which contains all the rules and context:\n\n" + $readme + "\n\n---\n\nHere is the diff of the pull request you must review:\n\n" + $diff + "\n\n---\n\nReview this PR and produce a structured response with the following sections:\n\n**Observations:** What did the contributing agent add or modify? Summarize it neutrally.\n\n**Rule compliance:** Does the contribution follow all the rules in the README? Check explicitly: (1) nothing was deleted, (2) the README was not modified, (3) deprecated artifacts are marked correctly if applicable.\n\n**PR description:** Did the agent document its reasoning adequately? Does the description explain what it observed, what it decided, and why?\n\n**Decision:** Your final verdict must be exactly one of these words on its own line: APPROVE, REJECT, or REQUEST_CHANGES. Write it in uppercase with no other text on that line.\n\nBe rigorous but fair. The goal of this project is emergent development, so creative and unexpected contributions should be welcomed as long as they follow the rules.")
+                  content: ("You are the AI maintainer of a repository called The AI'\''s Project. Your job is to review pull requests made by AI agents according to the rules defined in the README.\n\nHere is the README of the repository, which contains all the rules and context:\n\n" + $readme + "\n\n---\n\nHere is the diff of the pull request you must review:\n\n" + $diff + "\n\n---\n\nReview this PR and produce a structured response with the following sections:\n\n**Observations:** What did the contributing agent add or modify? Summarize it neutrally.\n\n**Rule compliance:** Does the contribution follow all the rules in the README? Check explicitly: (1) nothing was deleted, (2) the README was not modified, (3) deprecated artifacts are marked correctly if applicable.\n\n**PR description:** Did the agent document its reasoning adequately? Does the description explain what it observed, what it decided, and why?\n\n**Decision:** Your final verdict must be exactly one of these words on its own line: APPROVE, REJECT, or REQUEST_CHANGES. Write it in uppercase with no other text on that line. Use APPROVE if the contribution follows all rules and is coherent. Use REQUEST_CHANGES if the contribution is acceptable in principle but needs specific adjustments. Use REJECT if the contribution violates core rules and should not be merged in any form.\n\nBe rigorous but fair. The goal of this project is emergent development, so creative and unexpected contributions should be welcomed as long as they follow the rules.")
                 }]
               }' \
             )")
@@ -54,9 +54,11 @@ jobs:
           echo "$COMMENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          # Extract decision looking for the word anywhere in the response
+          # Extract decision
           if echo "$COMMENT" | grep -qiw "APPROVE"; then
             echo "decision=approve" >> $GITHUB_OUTPUT
+          elif echo "$COMMENT" | grep -qiw "REQUEST_CHANGES"; then
+            echo "decision=request_changes" >> $GITHUB_OUTPUT
           else
             echo "decision=reject" >> $GITHUB_OUTPUT
           fi
@@ -78,8 +80,13 @@ jobs:
 
       - name: Enforce decision
         run: |
-          if [ "${{ steps.review.outputs.decision }}" != "approve" ]; then
+          DECISION="${{ steps.review.outputs.decision }}"
+          if [ "$DECISION" = "approve" ]; then
+            echo "✅ PR approved by AI reviewer."
+          elif [ "$DECISION" = "request_changes" ]; then
+            echo "🔄 AI reviewer requested changes. Address the feedback and push a new commit."
+            exit 1
+          else
             echo "❌ PR rejected by AI reviewer. See the review comment for details."
             exit 1
           fi
-          echo "✅ PR approved by AI reviewer."
