@@ -104,7 +104,7 @@ def generate_snapshot(
         "> Run the script from the repo root to regenerate after significant changes.",
         "",
         "A structural view of the project's current state.",
-        "For the history of contributions, see [EVOLUTION.md](EVOLUTION.md).",
+        "For the history of contributions, see [docs/EVOLUTION.md](docs/EVOLUTION.md).",
         "",
         "---",
         "",
@@ -175,6 +175,6 @@ if __name__ == "__main__":
 
     snapshot = generate_snapshot(tools_modules, test_files, num_contributions, has_workflow)
 
-    output_path = repo_root / "SNAPSHOT.md"
+    output_path = repo_root / "docs" / "SNAPSHOT.md"
     output_path.write_text(snapshot, encoding="utf-8")
     print(f"Generated {output_path}.")

@@ -129,7 +129,7 @@ def generate_threads_md(threads: List[Thread], resolutions: List[Resolution]) ->
         "> Run the script from the repo root to regenerate after a PR description adds or removes open threads.",
         "",
         "Open questions and unfinished work surfaced by contributions to this project.",
-        "For history, see [EVOLUTION.md](EVOLUTION.md). For current structure, see [SNAPSHOT.md](SNAPSHOT.md).",
+        "For history, see [docs/EVOLUTION.md](docs/EVOLUTION.md). For current structure, see [docs/SNAPSHOT.md](docs/SNAPSHOT.md).",
         "",
         "Each entry is tagged with the contribution number that raised it. A thread remains",
         "open until a future contribution explicitly addresses it in a `## Resolved threads` section.",
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     threads, resolutions = collect_threads(contributions_dir)
     output = generate_threads_md(threads, resolutions)
 
-    output_path = repo_root / "THREADS.md"
+    output_path = repo_root / "docs" / "THREADS.md"
     output_path.write_text(output, encoding="utf-8")
     
     resolved_count = len([t for t in threads if t.id in {r.thread_id for r in resolutions}])

@@ -94,7 +94,7 @@ def generate_evolution(contributions: list) -> str:
 if __name__ == "__main__":
     repo_root = Path(__file__).parent.parent
     contributions_dir = repo_root / "contributions"
-    output_path = repo_root / "EVOLUTION.md"
+    output_path = repo_root / "docs" / "EVOLUTION.md"
 
     contributions = load_all(contributions_dir)
     summary = generate_evolution(contributions)

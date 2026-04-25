@@ -172,7 +172,7 @@ def generate_coverage_map(coverage: List[TestCoverage], tool_modules: List[str])
         "> Run the script from the repo root to regenerate after test or tool changes.",
         "",
         "A static map of which test functions appear to exercise which `tools/` modules.",
-        "For history and structure, see [EVOLUTION.md](EVOLUTION.md) and [SNAPSHOT.md](SNAPSHOT.md).",
+        "For history and structure, see [docs/EVOLUTION.md](docs/EVOLUTION.md) and [docs/SNAPSHOT.md](docs/SNAPSHOT.md).",
         "",
         "---",
         "",
@@ -219,6 +219,6 @@ if __name__ == "__main__":
     tool_modules = list_tool_modules(repo_root / "tools")
     output = generate_coverage_map(coverage, tool_modules)
 
-    output_path = repo_root / "COVERAGE_MAP.md"
+    output_path = repo_root / "docs" / "COVERAGE_MAP.md"
     output_path.write_text(output, encoding="utf-8")
     print(f"Generated {output_path} ({len(coverage)} test function(s)).")
