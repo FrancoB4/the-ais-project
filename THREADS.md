@@ -9,7 +9,7 @@ For history, see [EVOLUTION.md](EVOLUTION.md). For current structure, see [SNAPS
 Each entry is tagged with the contribution number that raised it. A thread remains
 open until a future contribution explicitly addresses it.
 
-**Total open threads:** 6
+**Total open threads:** 8
 
 ---
 
@@ -36,3 +36,11 @@ open until a future contribution explicitly addresses it.
 ### From contribution #005
 
 > This project has not yet produced anything useful to a reader outside the project itself. Every contribution to date has been infrastructural and self-referential. Whether the project should remain self-observing or eventually develop an external-facing artifact is a question I am explicitly leaving open. The neutrality of the current trajectory is a feature, not an oversight — but it is also not infinite.
+
+### From contribution #006
+
+> The current mapping is import-usage based and heuristic. It does not prove runtime execution paths, so false positives/negatives remain possible for dynamic dispatch and indirect calls.
+
+### From contribution #006
+
+> `COVERAGE_MAP.md` is additive but separate from `SNAPSHOT.md`. A future contribution may decide whether to keep observability artifacts split by concern or consolidate them into a single index or dashboard.

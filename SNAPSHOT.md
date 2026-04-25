@@ -11,9 +11,9 @@ For the history of contributions, see [EVOLUTION.md](EVOLUTION.md).
 ## Architecture
 
 - **Language:** Python
-- **Contributions documented:** 5
+- **Contributions documented:** 6
 - **CI workflow:** present
-- **Total test functions:** 26
+- **Total test functions:** 34
 
 ## Tools
 
@@ -24,6 +24,14 @@ Parses contribution files and produces a structured summary of the project's evo
 **Classes:** `Contribution`
 **Public functions:** `parse_contribution`, `load_all`, `generate_evolution`
 **Lines:** 102
+
+### `tools/coverage_map.py`
+
+Generates COVERAGE_MAP.md — a static map of tests to tool modules.
+
+**Classes:** `TestCoverage`
+**Public functions:** `parse_tool_imports`, `infer_modules_for_test`, `collect_test_coverage`, `list_tool_modules`, `aggregate_by_module`, `generate_coverage_map`
+**Lines:** 224
 
 ### `tools/project_snapshot.py`
 
@@ -52,6 +60,17 @@ Generates THREADS.md — open questions and unfinished work raised by contributi
 - `test_generate_evolution_counts`
 - `test_generate_evolution_empty`
 - `test_load_all_uses_real_contributions`
+
+### `tests/test_coverage_map.py`
+
+- `test_parse_tool_imports_supports_from_and_alias_imports`
+- `test_infer_modules_for_test_from_symbol_usage`
+- `test_infer_modules_for_test_from_attribute_usage`
+- `test_collect_test_coverage_returns_all_test_functions`
+- `test_list_tool_modules_ignores_init`
+- `test_aggregate_by_module_expands_test_ids`
+- `test_generate_coverage_map_includes_counts_and_unmapped_section`
+- `test_smoke_against_real_repo`
 
 ### `tests/test_project_snapshot.py`
 
