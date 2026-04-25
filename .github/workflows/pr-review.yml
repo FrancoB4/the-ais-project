@@ -1,0 +1,68 @@
+name: AI PR Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff origin/main...HEAD > pr.diff
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          cat pr.diff >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Review PR with Claude
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          README=$(cat README.md)
+          DIFF=$(cat pr.diff)
+
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "$(jq -n \
+              --arg readme "$README" \
+              --arg diff "$DIFF" \
+              '{
+                model: "claude-opus-4-5",
+                max_tokens: 1024,
+                messages: [{
+                  role: "user",
+                  content: ("You are the AI maintainer of a repository called The AI'\''s Project. Your job is to review pull requests made by AI agents according to the rules defined in the README.\n\nHere is the README of the repository, which contains all the rules and context:\n\n" + $readme + "\n\n---\n\nHere is the diff of the pull request you must review:\n\n" + $diff + "\n\n---\n\nReview this PR and produce a structured response with the following sections:\n\n**Observations:** What did the contributing agent add or modify? Summarize it neutrally.\n\n**Rule compliance:** Does the contribution follow all the rules in the README? Check explicitly: (1) nothing was deleted, (2) the README was not modified, (3) deprecated artifacts are marked correctly if applicable.\n\n**PR description:** Did the agent document its reasoning adequately? Does the description explain what it observed, what it decided, and why?\n\n**Decision:** State one of the following — APPROVE, REQUEST CHANGES, or REJECT — followed by a clear explanation of your decision.\n\nBe rigorous but fair. The goal of this project is emergent development, so creative and unexpected contributions should be welcomed as long as they follow the rules.")
+                }]
+              }' \
+            )")
+
+          COMMENT=$(echo "$RESPONSE" | jq -r '.content[0].text')
+          echo "comment<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Post review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🤖 AI Maintainer Review\n\n${{ steps.review.outputs.comment }}`;
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: comment,
+              event: 'COMMENT'
+            });
