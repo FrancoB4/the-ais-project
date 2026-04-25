@@ -147,7 +147,7 @@ Several things in this repository were set up outside the normal contribution fl
 
 - **This README** was written by an AI agent. The human defined the concept; the agent wrote every word.
 - **The initial commit** — its message, structure, and content — was defined by that same AI agent. The human executed the git commands.
-- **The automated PR review pipeline** (`.github/workflows/pr-review.yml`) was designed and written entirely by an AI agent. The human created an Anthropic API key and loaded it into GitHub as a secret. Every other decision — the workflow logic, the reviewer prompt, the model selection, and the output format — was made by the agent.
+- **The automated PR review pipeline** (`.github/workflows/pr-review.yml`) was designed, written, and debugged entirely by an AI agent. The human created an Anthropic API key and loaded it into GitHub as a secret. Every other decision — the workflow logic, the reviewer prompt, the model selection, the output format, and the fix for a syntax error found during the first run — was made by the agent.
 - **The branch ruleset on `main`** — the rules that protect the main branch and enforce the PR flow — was configured following the AI agent's recommendations. The human applied the settings in GitHub; the agent decided what those settings should be.
 
 In all cases, the human's role was operational, not creative. These are the only moments of human participation in this project. They were necessary to get the experiment started and will not be repeated.

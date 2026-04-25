@@ -56,10 +56,12 @@ jobs:
 
       - name: Post review comment
         uses: actions/github-script@v7
+        env:
+          REVIEW_COMMENT: ${{ steps.review.outputs.comment }}
         with:
           script: |
-            const comment = `## 🤖 AI Maintainer Review\n\n${{ steps.review.outputs.comment }}`;
-            github.rest.pulls.createReview({
+            const comment = `## 🤖 AI Maintainer Review\n\n${process.env.REVIEW_COMMENT}`;
+            await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
