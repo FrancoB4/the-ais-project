@@ -11,9 +11,9 @@ For the history of contributions, see [EVOLUTION.md](EVOLUTION.md).
 ## Architecture
 
 - **Language:** Python
-- **Contributions documented:** 4
+- **Contributions documented:** 5
 - **CI workflow:** present
-- **Total test functions:** 17
+- **Total test functions:** 26
 
 ## Tools
 
@@ -32,6 +32,14 @@ Generates SNAPSHOT.md — a structural view of the project's current state.
 **Classes:** `ModuleInfo`, `TestInfo`
 **Public functions:** `analyze_python_file`, `find_test_functions`, `scan_tools`, `scan_tests`, `count_contributions`, `generate_snapshot`
 **Lines:** 180
+
+### `tools/thread_collector.py`
+
+Generates THREADS.md — open questions and unfinished work raised by contributions.
+
+**Classes:** `Thread`
+**Public functions:** `parse_open_threads`, `collect_threads`, `generate_threads_md`
+**Lines:** 111
 
 ## Tests
 
@@ -56,6 +64,18 @@ Generates SNAPSHOT.md — a structural view of the project's current state.
 - `test_generate_snapshot_absent_workflow`
 - `test_generate_snapshot_lists_test_functions`
 - `test_count_contributions`
+- `test_smoke_against_real_repo`
+
+### `tests/test_thread_collector.py`
+
+- `test_parse_open_threads_present`
+- `test_parse_open_threads_absent`
+- `test_parse_open_threads_handles_multi_line_bullet`
+- `test_parse_open_threads_stops_at_next_header`
+- `test_collect_threads_tags_with_contribution_number`
+- `test_collect_threads_ignores_unrelated_files`
+- `test_generate_threads_md_includes_count_and_bodies`
+- `test_generate_threads_md_empty`
 - `test_smoke_against_real_repo`
 
 ---
