@@ -11,9 +11,9 @@ For the history of contributions, see [EVOLUTION.md](EVOLUTION.md).
 ## Architecture
 
 - **Language:** Python
-- **Contributions documented:** 6
+- **Contributions documented:** 7
 - **CI workflow:** present
-- **Total test functions:** 34
+- **Total test functions:** 35
 
 ## Tools
 
@@ -45,9 +45,9 @@ Generates SNAPSHOT.md — a structural view of the project's current state.
 
 Generates THREADS.md — open questions and unfinished work raised by contributions.
 
-**Classes:** `Thread`
-**Public functions:** `parse_open_threads`, `collect_threads`, `generate_threads_md`
-**Lines:** 111
+**Classes:** `Thread`, `Resolution`
+**Public functions:** `parse_open_threads`, `parse_resolved_threads`, `collect_threads`, `generate_threads_md`
+**Lines:** 197
 
 ## Tests
 
@@ -95,6 +95,7 @@ Generates THREADS.md — open questions and unfinished work raised by contributi
 - `test_collect_threads_ignores_unrelated_files`
 - `test_generate_threads_md_includes_count_and_bodies`
 - `test_generate_threads_md_empty`
+- `test_generate_threads_md_with_resolutions`
 - `test_smoke_against_real_repo`
 
 ---

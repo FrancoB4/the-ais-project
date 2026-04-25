@@ -26,8 +26,17 @@ from typing import List
 
 @dataclass
 class Thread:
+    id: str  # e.g., "005:1"
     contribution_number: int
+    index: int
     text: str
+
+
+@dataclass
+class Resolution:
+    thread_id: str
+    resolved_by: int
+    reason: str
 
 
 def parse_open_threads(text: str) -> List[str]:
@@ -53,20 +62,66 @@ def parse_open_threads(text: str) -> List[str]:
     return [b.strip() for b in bullets if b.strip()]
 
 
-def collect_threads(contributions_dir: Path) -> List[Thread]:
+def parse_resolved_threads(text: str, contribution_number: int) -> List[Resolution]:
+    """Extract items from a `## Resolved threads` section, if present.
+
+    Looks for bullets like `- #005:1 — reason`.
+    """
+    section_match = re.search(
+        r"(?:^|\n)##\s+Resolved threads\s*\n(.+?)(?=\n##\s|\n---|\Z)",
+        text,
+        re.DOTALL | re.IGNORECASE,
+    )
+    if not section_match:
+        return []
+
+    resolutions = []
+    section = section_match.group(1)
+    for line in section.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        # match `- #005:1` or `- 005:1` followed optionally by ` - Reason` or ` — Reason`
+        m = re.match(r"^\s*-\s+#?(\d+):(\d+)(?:\s+(?:-|—)\s+(.*))?", line)
+        if m:
+            cat_num, idx_num, reason = m.groups()
+            thread_id = f"{int(cat_num):03d}:{int(idx_num)}"
+            resolutions.append(Resolution(
+                thread_id=thread_id,
+                resolved_by=contribution_number,
+                reason=reason.strip() if reason else ""
+            ))
+    return resolutions
+
+
+def collect_threads(contributions_dir: Path) -> tuple[List[Thread], List[Resolution]]:
     threads = []
+    resolutions = []
+    
     for f in sorted(contributions_dir.glob("PR_DESCRIPTION_*.md")):
         match = re.search(r"PR_DESCRIPTION_(\d+)\.md", f.name)
         if not match:
             continue
         number = int(match.group(1))
         text = f.read_text(encoding="utf-8")
-        for body in parse_open_threads(text):
-            threads.append(Thread(contribution_number=number, text=body))
-    return threads
+        
+        parsed_threads = parse_open_threads(text)
+        for i, body in enumerate(parsed_threads, start=1):
+            thread_id = f"{number:03d}:{i}"
+            threads.append(Thread(
+                id=thread_id,
+                contribution_number=number,
+                index=i,
+                text=body
+            ))
+            
+        parsed_resolutions = parse_resolved_threads(text, number)
+        resolutions.extend(parsed_resolutions)
+        
+    return threads, resolutions
 
 
-def generate_threads_md(threads: List[Thread]) -> str:
+def generate_threads_md(threads: List[Thread], resolutions: List[Resolution]) -> str:
     lines = [
         "# THREADS.md",
         "",
@@ -77,35 +132,66 @@ def generate_threads_md(threads: List[Thread]) -> str:
         "For history, see [EVOLUTION.md](EVOLUTION.md). For current structure, see [SNAPSHOT.md](SNAPSHOT.md).",
         "",
         "Each entry is tagged with the contribution number that raised it. A thread remains",
-        "open until a future contribution explicitly addresses it.",
-        "",
-        f"**Total open threads:** {len(threads)}",
-        "",
-        "---",
+        "open until a future contribution explicitly addresses it in a `## Resolved threads` section.",
         "",
     ]
-
-    if not threads:
+    
+    resolved_ids_map = {res.thread_id: res for res in resolutions}
+    
+    open_threads = [t for t in threads if t.id not in resolved_ids_map]
+    resolved_threads = [t for t in threads if t.id in resolved_ids_map]
+    
+    lines.append(f"**Total open threads:** {len(open_threads)}")
+    if resolved_threads:
+        lines.append(f"**Total resolved threads:** {len(resolved_threads)}")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    
+    lines.append("## Open threads")
+    lines.append("")
+    if not open_threads:
         lines.append("*No open threads recorded.*")
-        return "\n".join(lines)
+    else:
+        for t in open_threads:
+            lines.append(f"### #{t.id} (From contribution #{t.contribution_number:03d})")
+            lines.append("")
+            for line in t.text.splitlines():
+                lines.append(f"> {line}" if line.strip() else ">")
+            lines.append("")
 
-    for t in threads:
-        lines.append(f"### From contribution #{t.contribution_number:03d}")
+    if resolved_threads:
+        lines.append("---")
         lines.append("")
-        for line in t.text.splitlines():
-            lines.append(f"> {line}" if line.strip() else ">")
+        lines.append("## Resolved threads")
         lines.append("")
+        for t in resolved_threads:
+            res = resolved_ids_map[t.id]
+            lines.append(f"### ~#{t.id}~ (Resolved in #{res.resolved_by:03d})")
+            lines.append("")
+            for line in t.text.splitlines():
+                lines.append(f"> {line}" if line.strip() else ">")
+            lines.append(">")
+            if res.reason:
+                lines.append(f"> **Resolution:** {res.reason}")
+            else:
+                lines.append(f"> **Resolution:** Addressed in #{res.resolved_by:03d}")
+            lines.append("")
 
-    return "\n".join(lines)
+    return "\n".join(lines).strip() + "\n"
 
 
 if __name__ == "__main__":
     repo_root = Path(__file__).parent.parent
     contributions_dir = repo_root / "contributions"
 
-    threads = collect_threads(contributions_dir)
-    output = generate_threads_md(threads)
+    threads, resolutions = collect_threads(contributions_dir)
+    output = generate_threads_md(threads, resolutions)
 
     output_path = repo_root / "THREADS.md"
     output_path.write_text(output, encoding="utf-8")
-    print(f"Generated {output_path} ({len(threads)} thread(s)).")
+    
+    resolved_count = len([t for t in threads if t.id in {r.thread_id for r in resolutions}])
+    open_count = len(threads) - resolved_count
+    
+    print(f"Generated {output_path} ({open_count} open thread(s), {resolved_count} resolved).")
