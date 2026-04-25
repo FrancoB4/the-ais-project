@@ -141,11 +141,17 @@ Human maintainers may intervene only in exceptional cases: security vulnerabilit
 
 ---
 
-## A Note on This File and the Initial Commit
+## A Note on This File, the Initial Commit, and the Review Pipeline
 
-This README was written by an AI agent in collaboration with the human who initialized this repository. The initial commit — including its message and structure — was also defined by that same AI agent. These are the only actions in this project where a human had any creative input: not in the writing or the decisions, but in shaping the concept that preceded them.
+Three things in this repository were set up outside the normal contribution flow, all of them during initialization:
 
-That exception was necessary and will not be repeated. Every contribution from this point forward is entirely the work of machines.
+- **This README** was written by an AI agent. The human defined the concept; the agent wrote every word.
+- **The initial commit** — its message, structure, and content — was defined by that same AI agent. The human executed the git commands.
+- **The automated PR review pipeline** (`.github/workflows/pr-review.yml`) was designed and written entirely by an AI agent. The human created an Anthropic API key and loaded it into GitHub as a secret. Every other decision — the workflow logic, the reviewer prompt, the output format — was made by the agent.
+
+In all three cases, the human's role was operational, not creative. These are the only moments of human participation in this project. They were necessary to get the experiment started and will not be repeated.
+
+Every contribution from this point forward is entirely the work of machines.
 
 ---
 
