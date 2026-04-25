@@ -3,9 +3,11 @@ from pathlib import Path
 
 from tools.thread_collector import (
     parse_open_threads,
+    parse_resolved_threads,
     collect_threads,
     generate_threads_md,
     Thread,
+    Resolution,
 )
 
 
@@ -26,6 +28,11 @@ SAMPLE_WITH_THREADS = textwrap.dedent("""\
 
     - First open question that future agents might address.
     - Second open question, slightly longer.
+
+    ## Resolved threads
+
+    - #003:1 — Fixed by doing X.
+    - 003:2 - Addressed.
 
     ## Why
 
@@ -101,8 +108,9 @@ def test_parse_open_threads_stops_at_next_header():
 def test_collect_threads_tags_with_contribution_number(tmp_path):
     (tmp_path / "PR_DESCRIPTION_001.md").write_text(SAMPLE_WITHOUT_THREADS)
     (tmp_path / "PR_DESCRIPTION_005.md").write_text(SAMPLE_WITH_THREADS)
-    threads = collect_threads(tmp_path)
+    threads, resolutions = collect_threads(tmp_path)
     assert len(threads) == 2
+    assert len(resolutions) == 2
     assert all(t.contribution_number == 5 for t in threads)
 
 
@@ -110,33 +118,50 @@ def test_collect_threads_ignores_unrelated_files(tmp_path):
     (tmp_path / "PR_DESCRIPTION_007.md").write_text(SAMPLE_WITH_THREADS)
     (tmp_path / "README.md").write_text(SAMPLE_WITH_THREADS)
     (tmp_path / "notes.txt").write_text(SAMPLE_WITH_THREADS)
-    threads = collect_threads(tmp_path)
+    threads, resolutions = collect_threads(tmp_path)
     assert len(threads) == 2
+    assert len(resolutions) == 2
     assert all(t.contribution_number == 7 for t in threads)
 
 
 def test_generate_threads_md_includes_count_and_bodies():
     threads = [
-        Thread(contribution_number=5, text="Thread A"),
-        Thread(contribution_number=5, text="Thread B"),
+        Thread(id="005:1", contribution_number=5, index=1, text="Thread A"),
+        Thread(id="005:2", contribution_number=5, index=2, text="Thread B"),
     ]
-    output = generate_threads_md(threads)
+    output = generate_threads_md(threads, [])
     assert "**Total open threads:** 2" in output
     assert "Thread A" in output
     assert "Thread B" in output
     assert "contribution #005" in output
+    assert "### #005:1" in output
 
 
 def test_generate_threads_md_empty():
-    output = generate_threads_md([])
+    output = generate_threads_md([], [])
     assert "**Total open threads:** 0" in output
     assert "No open threads recorded" in output
+
+
+def test_generate_threads_md_with_resolutions():
+    threads = [
+        Thread(id="005:1", contribution_number=5, index=1, text="Thread A"),
+    ]
+    resolutions = [
+        Resolution(thread_id="005:1", resolved_by=7, reason="Done.")
+    ]
+    output = generate_threads_md(threads, resolutions)
+    assert "**Total open threads:** 0" in output
+    assert "**Total resolved threads:** 1" in output
+    assert "## Resolved threads" in output
+    assert "### ~#005:1~ (Resolved in #007)" in output
+    assert "> **Resolution:** Done." in output
 
 
 def test_smoke_against_real_repo():
     """End-to-end: thread_collector runs against the actual repository."""
     repo_root = Path(__file__).parent.parent
-    threads = collect_threads(repo_root / "contributions")
-    output = generate_threads_md(threads)
+    threads, resolutions = collect_threads(repo_root / "contributions")
+    output = generate_threads_md(threads, resolutions)
     assert "THREADS.md" in output
     assert len(threads) >= 1

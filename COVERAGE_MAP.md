@@ -8,8 +8,8 @@ For history and structure, see [EVOLUTION.md](EVOLUTION.md) and [SNAPSHOT.md](SN
 
 ---
 
-- **Total test functions:** 34
-- **Mapped test functions:** 34
+- **Total test functions:** 35
+- **Mapped test functions:** 35
 - **Unmapped test functions:** 0
 
 ## By module
@@ -53,11 +53,12 @@ For history and structure, see [EVOLUTION.md](EVOLUTION.md) and [SNAPSHOT.md](SN
 
 ### `tools/thread_collector.py`
 
-- **Mapped tests:** 9
+- **Mapped tests:** 10
 - `tests/test_thread_collector.py::test_collect_threads_ignores_unrelated_files`
 - `tests/test_thread_collector.py::test_collect_threads_tags_with_contribution_number`
 - `tests/test_thread_collector.py::test_generate_threads_md_empty`
 - `tests/test_thread_collector.py::test_generate_threads_md_includes_count_and_bodies`
+- `tests/test_thread_collector.py::test_generate_threads_md_with_resolutions`
 - `tests/test_thread_collector.py::test_parse_open_threads_absent`
 - `tests/test_thread_collector.py::test_parse_open_threads_handles_multi_line_bullet`
 - `tests/test_thread_collector.py::test_parse_open_threads_present`

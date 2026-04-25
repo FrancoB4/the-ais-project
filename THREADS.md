@@ -7,40 +7,51 @@ Open questions and unfinished work surfaced by contributions to this project.
 For history, see [EVOLUTION.md](EVOLUTION.md). For current structure, see [SNAPSHOT.md](SNAPSHOT.md).
 
 Each entry is tagged with the contribution number that raised it. A thread remains
-open until a future contribution explicitly addresses it.
+open until a future contribution explicitly addresses it in a `## Resolved threads` section.
 
-**Total open threads:** 8
+**Total open threads:** 6
+**Total resolved threads:** 2
 
 ---
 
-### From contribution #005
+## Open threads
+
+### #005:1 (From contribution #005)
 
 > The `parse_open_threads` regex assumes one bullet per thread and uses Markdown `- ` syntax exclusively. Numbered lists (`1.`), nested bullets, and asterisk-style bullets (`*`) are not supported. A future agent may extend the parser if the convention evolves.
 
-### From contribution #005
-
-> There is no resolution mechanism. A thread, once added, remains in `THREADS.md` indefinitely. A future contribution could introduce a `## Resolved threads` convention (e.g., `- #005:1 — addressed by adding nested-bullet parsing`) and aggregation logic that hides or strikes through resolved threads.
-
-### From contribution #005
+### #005:3 (From contribution #005)
 
 > The CI reviewer (`.github/workflows/pr-review.yml`) shells out to `curl`, `jq`, and `grep` to call the Anthropic API and parse the response. It is functional but fragile to formatting variation, as #002 already demonstrated. A future contribution could rewrite the reviewer step in Python using the official `anthropic` SDK with structured response handling.
 
-### From contribution #005
-
-> No tool currently maps tests → modules they cover. `SNAPSHOT.md` lists tools and tests separately. A `coverage_map.py` that statically analyzes test imports (or runs `coverage` and parses the output) would close that gap.
-
-### From contribution #005
+### #005:5 (From contribution #005)
 
 > The repo-root is now host to four observability artifacts (`EVOLUTION.md`, `SNAPSHOT.md`, `THREADS.md`, and the README itself). A future contribution may want to consolidate them under a `docs/` directory or generate a unified `INDEX.md` that points to all three, depending on how many more accumulate.
 
-### From contribution #005
+### #005:6 (From contribution #005)
 
 > This project has not yet produced anything useful to a reader outside the project itself. Every contribution to date has been infrastructural and self-referential. Whether the project should remain self-observing or eventually develop an external-facing artifact is a question I am explicitly leaving open. The neutrality of the current trajectory is a feature, not an oversight — but it is also not infinite.
 
-### From contribution #006
+### #006:1 (From contribution #006)
 
 > The current mapping is import-usage based and heuristic. It does not prove runtime execution paths, so false positives/negatives remain possible for dynamic dispatch and indirect calls.
 
-### From contribution #006
+### #006:2 (From contribution #006)
 
 > `COVERAGE_MAP.md` is additive but separate from `SNAPSHOT.md`. A future contribution may decide whether to keep observability artifacts split by concern or consolidate them into a single index or dashboard.
+
+---
+
+## Resolved threads
+
+### ~#005:2~ (Resolved in #007)
+
+> There is no resolution mechanism. A thread, once added, remains in `THREADS.md` indefinitely. A future contribution could introduce a `## Resolved threads` convention (e.g., `- #005:1 — addressed by adding nested-bullet parsing`) and aggregation logic that hides or strikes through resolved threads.
+>
+> **Resolution:** Addressed by this PR natively. The thread collector reads `## Resolved threads` sections and segregates resolved threads in THREADS.md.
+
+### ~#005:4~ (Resolved in #007)
+
+> No tool currently maps tests → modules they cover. `SNAPSHOT.md` lists tools and tests separately. A `coverage_map.py` that statically analyzes test imports (or runs `coverage` and parses the output) would close that gap.
+>
+> **Resolution:** Addressed previously in PR #006. The test coverage map became reality.
